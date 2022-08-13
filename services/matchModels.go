@@ -1,17 +1,35 @@
 package services
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type Game struct {
-	Id   int64  `json:"id"`
-	Name string `json:"title"`
+	Id   primitive.ObjectID `json:"id" bson:"_id"`
+	Name string             `json:"title" bson:"t"`
 }
 
 type IMatch interface {
+	GetId() primitive.ObjectID
+	GetGameId() primitive.ObjectID
+	GetBoard() [][]int
 	MakeMove(IMove) bool
 }
 
 type QuoridorMatch struct {
-	Id    int64   `json:"id"`
-	Board [][]int `json:"board"`
+	Id     primitive.ObjectID `json:"id" bson:"_id"`
+	GameId primitive.ObjectID `json:"game_id" bson:"g_id"`
+	Board  [][]int            `json:"board" bson:"b"`
+}
+
+func (match QuoridorMatch) GetId() primitive.ObjectID {
+	return match.Id
+}
+
+func (match QuoridorMatch) GetGameId() primitive.ObjectID {
+	return match.Id
+}
+
+func (match QuoridorMatch) GetBoard() [][]int {
+	return match.Board
 }
 
 func (match QuoridorMatch) MakeMove(move IMove) bool {
@@ -22,7 +40,7 @@ type IMove interface {
 }
 
 type GetMatchRequest struct {
-	Id int64 `json:"id"`
+	Id string `json:"id"`
 }
 
 type GetMatchResponse struct {
@@ -30,17 +48,16 @@ type GetMatchResponse struct {
 }
 
 type CreateMatchRequest struct {
-	GameId int64 `json:"gameId"`
+	GameId string `json:"gameId"`
 }
 
 type CreateMatchResponse struct {
-	Id    int64  `json:"id"`
 	Match IMatch `json:"match"`
 }
 
 type MoveRequest struct {
-	Id   int64 `json:"id"`
-	Move IMove `json:"move"`
+	Id   string `json:"id"`
+	Move IMove  `json:"move"`
 }
 
 type MoveResponse struct {
