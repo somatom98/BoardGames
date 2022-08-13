@@ -5,13 +5,20 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/somatom98/board-games/services"
 )
 
 func GetMatch(w http.ResponseWriter, r *http.Request) {
+	sl := strings.Split(r.RequestURI, "/")
+	id, err := strconv.Atoi(sl[len(sl)-1])
+	if err != nil {
+		panic(err)
+	}
 	getMatchRequest := services.GetMatchRequest{
-		Id: 1,
+		Id: int64(id),
 	}
 	response, err := json.Marshal(services.GetMatch(getMatchRequest))
 	if err != nil {

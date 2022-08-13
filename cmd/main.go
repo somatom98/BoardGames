@@ -10,7 +10,7 @@ func main() {
 	httpHandler := api.NewHttpHandler(8080)
 
 	httpHandler.AddEndpoint("GET", "/match/", controllers.GetMatch)
-	httpHandler.AddEndpoint("POST", "/match/", controllers.PostMatch)
+	httpHandler.AddEndpoint("POST", "/match", controllers.PostMatch)
 
 	httpHandler.ListenAndServe()
 }
