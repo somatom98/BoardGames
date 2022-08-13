@@ -1,13 +1,18 @@
 package api
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+)
 
 type httpHandler struct {
+	port     int
 	handlers map[string]func(w http.ResponseWriter, r *http.Request)
 }
 
-func NewHttpHandler() httpHandler {
+func NewHttpHandler(port int) httpHandler {
 	return httpHandler{
+		port:     port,
 		handlers: make(map[string]func(w http.ResponseWriter, r *http.Request)),
 	}
 }
@@ -30,9 +35,9 @@ func (httpHandler httpHandler) AddEndpoint(method string, pattern string, handle
 	}
 }
 
-func (httpHandler httpHandler) ListenAndServe(port string) {
+func (httpHandler httpHandler) ListenAndServe() {
 	for pattern, handler := range httpHandler.handlers {
 		http.HandleFunc(pattern, handler)
 	}
-	http.ListenAndServe(port, nil)
+	http.ListenAndServe(fmt.Sprintf(":%v", httpHandler.port), nil)
 }

@@ -1,4 +1,4 @@
-package api
+package services
 
 func GetMatch(request GetMatchRequest) GetMatchResponse {
 	boardSize := 8
