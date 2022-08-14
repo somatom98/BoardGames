@@ -2,29 +2,34 @@ package services
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-func GetMatch(request GetMatchRequest) GetMatchResponse {
+func GetMatch(request GetMatchRequest) (GetMatchResponse, error) {
 	match, err := FindMatch(request.Id)
 	if err != nil {
-		panic(err)
+		return GetMatchResponse{}, err
 	}
 	return GetMatchResponse{
 		Match: match,
-	}
+	}, nil
 }
 
-func CreateMatch(request CreateMatchRequest) CreateMatchResponse {
+func CreateMatch(request CreateMatchRequest) (CreateMatchResponse, error) {
 	boardSize := 8
-	match := QuoridorMatch{
-		Id:    primitive.NewObjectID(),
-		Board: make([][]int, boardSize*2-1),
-	}
-	err := InsertMatch(match)
+	gameId, err := primitive.ObjectIDFromHex(request.GameId)
 	if err != nil {
-		panic(err)
+		return CreateMatchResponse{}, err
+	}
+	match := QuoridorMatch{
+		Id:     primitive.NewObjectID(),
+		GameId: gameId,
+		Board:  make([][]int, boardSize*2-1),
+	}
+	err = InsertMatch(match)
+	if err != nil {
+		return CreateMatchResponse{}, err
 	}
 	return CreateMatchResponse{
 		Match: match,
-	}
+	}, nil
 }
 
 func Move(request MoveRequest) MoveResponse {

@@ -16,7 +16,11 @@ func GetMatch(w http.ResponseWriter, r *http.Request) {
 	getMatchRequest := services.GetMatchRequest{
 		Id: id,
 	}
-	response, err := json.Marshal(services.GetMatch(getMatchRequest))
+	getMatchResponse, err := services.GetMatch(getMatchRequest)
+	if err != nil {
+		panic(err)
+	}
+	response, err := json.MarshalIndent(getMatchResponse, "", "\t")
 	if err != nil {
 		panic(err)
 	}
@@ -34,7 +38,11 @@ func PostMatch(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	response, err := json.Marshal(services.CreateMatch(createMatchRequest))
+	createMatchRespone, err := services.CreateMatch(createMatchRequest)
+	if err != nil {
+		panic(err)
+	}
+	response, err := json.MarshalIndent(createMatchRespone, "", "\t")
 	if err != nil {
 		panic(err)
 	}

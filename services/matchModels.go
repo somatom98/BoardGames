@@ -4,7 +4,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Game struct {
 	Id   primitive.ObjectID `json:"id" bson:"_id"`
-	Name string             `json:"title" bson:"t"`
+	Name string             `json:"name" bson:"n"`
 }
 
 type IMatch interface {
