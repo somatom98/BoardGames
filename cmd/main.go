@@ -11,6 +11,7 @@ func main() {
 
 	httpHandler.AddEndpoint("GET", "/match/", controllers.GetMatch)
 	httpHandler.AddEndpoint("POST", "/match", controllers.PostMatch)
+	httpHandler.AddEndpoint("GET", "/games/", controllers.GetGames)
 
 	httpHandler.ListenAndServe()
 }

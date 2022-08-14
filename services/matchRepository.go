@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -49,6 +50,22 @@ func FindGame(id primitive.ObjectID) (Game, error) {
 	var game Game
 	err = gameCollection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&game)
 	return game, err
+}
+
+func FindGames() ([]Game, error) {
+	gameCollection, err := getCollection("games", "games")
+	if err != nil {
+		return nil, err
+	}
+	cursor, err := gameCollection.Find(context.TODO(), bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	var games []Game
+	if err = cursor.All(context.TODO(), &games); err != nil {
+		log.Fatal(err)
+	}
+	return games, err
 }
 
 func getCollection(database string, collection string) (*mongo.Collection, error) {

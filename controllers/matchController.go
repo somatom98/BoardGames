@@ -48,3 +48,16 @@ func PostMatch(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprint(w, string(response))
 }
+
+func GetGames(w http.ResponseWriter, r *http.Request) {
+	getGamesResponse, err := services.GetGames()
+	if err != nil {
+		panic(err)
+	}
+	response, err := json.MarshalIndent(getGamesResponse, "", "\t")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Fprint(w, string(response))
+}

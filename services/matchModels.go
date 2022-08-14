@@ -55,6 +55,10 @@ type CreateMatchResponse struct {
 	Match IMatch `json:"match"`
 }
 
+type GetGamesResponse struct {
+	Games []Game `json:"games"`
+}
+
 type MoveRequest struct {
 	Id   string `json:"id"`
 	Move IMove  `json:"move"`

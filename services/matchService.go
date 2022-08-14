@@ -31,6 +31,16 @@ func CreateMatch(request CreateMatchRequest) (CreateMatchResponse, error) {
 	}, nil
 }
 
+func GetGames() (GetGamesResponse, error) {
+	games, err := FindGames()
+	if err != nil {
+		return GetGamesResponse{}, err
+	}
+	return GetGamesResponse{
+		Games: games,
+	}, nil
+}
+
 func Move(request MoveRequest) MoveResponse {
 	return MoveResponse{}
 }
