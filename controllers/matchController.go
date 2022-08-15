@@ -7,13 +7,14 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/somatom98/board-games/models"
 	"github.com/somatom98/board-games/services"
 )
 
 func GetMatch(w http.ResponseWriter, r *http.Request) {
 	sl := strings.Split(r.RequestURI, "/")
 	id := sl[len(sl)-1]
-	getMatchRequest := services.GetMatchRequest{
+	getMatchRequest := models.GetMatchRequest{
 		Id: id,
 	}
 	getMatchResponse, err := services.GetMatch(getMatchRequest)
@@ -33,7 +34,7 @@ func PostMatch(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	var createMatchRequest services.CreateMatchRequest
+	var createMatchRequest models.CreateMatchRequest
 	err = json.Unmarshal(requestBody, &createMatchRequest)
 	if err != nil {
 		panic(err)

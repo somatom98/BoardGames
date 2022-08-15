@@ -1,53 +1,56 @@
 package services
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	m "github.com/somatom98/board-games/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
-func GetMatch(request GetMatchRequest) (GetMatchResponse, error) {
+func GetMatch(request m.GetMatchRequest) (m.GetMatchResponse, error) {
 	match, err := FindMatch(request.Id)
 	if err != nil {
-		return GetMatchResponse{}, err
+		return m.GetMatchResponse{}, err
 	}
-	return GetMatchResponse{
+	return m.GetMatchResponse{
 		Match: match,
 	}, nil
 }
 
-func CreateMatch(request CreateMatchRequest) (CreateMatchResponse, error) {
+func CreateMatch(request m.CreateMatchRequest) (m.CreateMatchResponse, error) {
 	gameId, err := primitive.ObjectIDFromHex(request.GameId)
 	if err != nil {
-		return CreateMatchResponse{}, err
+		return m.CreateMatchResponse{}, err
 	}
 	game, err := FindGame(gameId)
 	if err != nil {
-		return CreateMatchResponse{}, nil
+		return m.CreateMatchResponse{}, nil
 	}
 	match := newMatch(game)
 	err = InsertMatch(match)
 	if err != nil {
-		return CreateMatchResponse{}, err
+		return m.CreateMatchResponse{}, err
 	}
-	return CreateMatchResponse{
+	return m.CreateMatchResponse{
 		Match: match,
 	}, nil
 }
 
-func GetGames() (GetGamesResponse, error) {
+func GetGames() (m.GetGamesResponse, error) {
 	games, err := FindGames()
 	if err != nil {
-		return GetGamesResponse{}, err
+		return m.GetGamesResponse{}, err
 	}
-	return GetGamesResponse{
+	return m.GetGamesResponse{
 		Games: games,
 	}, nil
 }
 
-func Move(request MoveRequest) MoveResponse {
-	return MoveResponse{}
+func Move(request m.MoveRequest) m.MoveResponse {
+	return m.MoveResponse{}
 }
 
-func newMatch(game Game) IMatch {
+func newMatch(game m.Game) m.IMatch {
 	boardSize := 8
-	match := QuoridorMatch{
+	match := m.QuoridorMatch{
 		Id:     primitive.NewObjectID(),
 		GameId: game.Id,
 		Board:  make([][]int, boardSize*2-1),
