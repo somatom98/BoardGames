@@ -25,7 +25,8 @@ type IMatch interface {
 	GetId() primitive.ObjectID
 	GetGameId() primitive.ObjectID
 	GetBoard() Board
-	MakeMove(IMove) error
+	NewBoard(playersNumber int) Board
+	MakeMove(move IMove) (Board, error)
 }
 
 type IMove interface {
@@ -53,8 +54,8 @@ type GetGamesResponse struct {
 }
 
 type MoveRequest struct {
-	MatchId string `json:"matchId"`
-	Move    IMove  `json:"move"`
+	MatchId string                 `json:"matchId"`
+	Move    map[string]interface{} `json:"move"`
 }
 
 type MoveResponse struct {

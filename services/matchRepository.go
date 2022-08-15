@@ -40,12 +40,12 @@ func InsertMatch(match m.IMatch) error {
 	return err
 }
 
-func UpdateMatch(match m.IMatch) error {
+func UpdateMatch(id primitive.ObjectID, board m.Board) error {
 	matchesCollection, err := getCollection("games", "matches")
 	if err != nil {
 		return err
 	}
-	_, err = matchesCollection.UpdateOne(context.TODO(), bson.M{"_id": match.GetId()}, match)
+	_, err = matchesCollection.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.D{{"$set", bson.D{{"b", board}}}})
 	return err
 }
 

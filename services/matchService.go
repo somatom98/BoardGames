@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	m "github.com/somatom98/board-games/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -49,10 +51,19 @@ func Move(request m.MoveRequest) (m.MoveResponse, error) {
 	if err != nil {
 		return m.MoveResponse{}, err
 	}
-	if err := match.MakeMove(request.Move); err != nil {
+	game, err := FindGame(match.GetGameId())
+	if err != nil {
 		return m.MoveResponse{}, err
 	}
-	if err := UpdateMatch(match); err != nil {
+	move, err := castMove(request.Move, game)
+	if err != nil {
+		return m.MoveResponse{}, err
+	}
+	board, err := match.MakeMove(move)
+	if err != nil {
+		return m.MoveResponse{}, err
+	}
+	if err := UpdateMatch(match.GetId(), board); err != nil {
 		return m.MoveResponse{}, err
 	}
 	return m.MoveResponse{
@@ -61,14 +72,29 @@ func Move(request m.MoveRequest) (m.MoveResponse, error) {
 }
 
 func newMatch(game m.Game) m.IMatch {
-	boardSize := 8
-	match := m.QuoridorMatch{
-		Id:     primitive.NewObjectID(),
-		GameId: game.Id,
-		Board:  make([][]int, boardSize*2-1),
-	}
-	for i := range match.Board {
-		match.Board[i] = make([]int, boardSize*2-1)
+	var match m.IMatch
+	switch game.Name {
+	case "Quoridor":
+		quoridorMatch := m.QuoridorMatch{
+			Id:     primitive.NewObjectID(),
+			GameId: game.Id,
+		}
+		quoridorMatch.Board = quoridorMatch.NewBoard(2)
+		match = quoridorMatch
 	}
 	return match
+}
+
+func castMove(moveToCast map[string]interface{}, game m.Game) (m.IMove, error) {
+	switch game.Name {
+	case "Quoridor":
+		move := m.QuoridorMove{
+			Player: int(moveToCast["player"].(float64)),
+			Action: m.QuoridorAction(moveToCast["action"].(float64)),
+			X:      int(moveToCast["x"].(float64)),
+			Y:      int(moveToCast["y"].(float64)),
+		}
+		return move, nil
+	}
+	return nil, errors.New("game not found")
 }

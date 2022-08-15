@@ -40,24 +40,37 @@ func (match QuoridorMatch) GetId() primitive.ObjectID {
 }
 
 func (match QuoridorMatch) GetGameId() primitive.ObjectID {
-	return match.Id
+	return match.GameId
 }
 
 func (match QuoridorMatch) GetBoard() Board {
 	return match.Board
 }
 
-func (match QuoridorMatch) MakeMove(mv IMove) error {
-	if err := mv.IsValid(match); err != nil {
-		return err
+func (match QuoridorMatch) NewBoard(playersNumber int) Board {
+	boardSize := 7
+	board := make([][]int, boardSize*2-1)
+	for i := range board {
+		board[i] = make([]int, boardSize*2-1)
+	}
+	switch playersNumber {
+	case 2:
+		board[0][boardSize-1] = P1
+		board[len(board)-1][boardSize-1] = P2
+	}
+	return board
+}
+
+func (match QuoridorMatch) MakeMove(mv IMove) (Board, error) {
+	move := mv.(QuoridorMove)
+	if err := move.IsValid(match); err != nil {
+		return nil, err
 	} else {
-		move := mv.(QuoridorMove)
 		if move.Action == MOVE {
-			match.Board.movePlayer(move.Player, move.X, move.Y)
+			return match.Board.movePlayer(move.Player, move.X, move.Y)
 		} else {
-			match.Board.placeFence(move.X, move.Y)
+			return match.Board.placeFence(move.X, move.Y), nil
 		}
-		return nil
 	}
 }
 
@@ -74,7 +87,7 @@ func (board Board) isValidMovement(player int, x int, y int) error {
 		return errors.New("move out of board")
 	}
 
-	if x%2 != 1 || y%2 != 1 {
+	if x%2 != 0 || y%2 != 0 {
 		return errors.New("players cannot be placed here")
 	}
 
@@ -84,10 +97,15 @@ func (board Board) isValidMovement(player int, x int, y int) error {
 	}
 
 	if mmath.Diff(x, xP)+mmath.Diff(y, yP) != 1 {
-		// validMovements := board.getValidMovements(x, y)
+		validMovements := board.getValidMovements(xP, yP)
+		for _, movement := range validMovements {
+			if movement.X == x && movement.Y == y {
+				return nil
+			}
+		}
 	}
 
-	return nil
+	return errors.New("invalid move")
 }
 
 func (board Board) getValidMovements(x int, y int) []Coordinate {
@@ -106,7 +124,7 @@ func (board Board) getValidMovementsInDirection(pl Coordinate, dir Coordinate) [
 	if board.isOutOfBoard(pl.X+dir.X*2, pl.Y+dir.Y*2) {
 		return nil
 	}
-	if board[pl.X+dir.X][pl.Y+dir.Y] != F { // fence
+	if board[pl.X+dir.X][pl.Y+dir.Y] == F { // fence
 		return nil
 	}
 
@@ -115,7 +133,7 @@ func (board Board) getValidMovementsInDirection(pl Coordinate, dir Coordinate) [
 		return []Coordinate{dest}
 	} // player ahead
 	if board[dest.X+dir.X][dest.Y+dir.Y] == 0 && board[dest.X+dir.X*2][dest.Y+dir.Y*2] == 0 { // no fence or other player ahead of the player found
-		return []Coordinate{Coordinate{X: dest.X + dir.X*2, Y: dest.Y + dir.Y*2}}
+		return []Coordinate{{X: dest.X + dir.X*2, Y: dest.Y + dir.Y*2}}
 	}
 	if board[dest.X+dir.X][dest.Y+dir.Y] == F { // fence ahead
 		var validMovements []Coordinate
@@ -143,7 +161,7 @@ func (board Board) getValidMovementsInDirection(pl Coordinate, dir Coordinate) [
 func (board Board) isValidPlacement(x int, y int) error {
 	if board.isOutOfBoard(x, y) {
 		return errors.New("placement out of board")
-	} else if x%2 != 0 || y%2 != 0 {
+	} else if x%2 != 1 || y%2 != 1 {
 		return errors.New("fences cannot be placed here")
 	} else if board[x][y] != 0 {
 		return errors.New("there is no space here")
@@ -155,14 +173,14 @@ func (board Board) isOutOfBoard(x int, y int) bool {
 	return x >= len(board) || x < 0 || y >= len(board) || y < 0
 }
 
-func (board Board) movePlayer(player int, x int, y int) error {
+func (board Board) movePlayer(player int, x int, y int) (Board, error) {
 	xP, yP, err := board.getPlayerCurrentPosition(player)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	board[xP][yP] = 0
 	board[x][y] = player
-	return nil
+	return board, nil
 }
 
 func (board Board) getPlayerCurrentPosition(player int) (int, int, error) {
@@ -176,7 +194,7 @@ func (board Board) getPlayerCurrentPosition(player int) (int, int, error) {
 	return 0, 0, errors.New("player not found")
 }
 
-func (board Board) placeFence(x int, y int) error {
+func (board Board) placeFence(x int, y int) Board {
 	board[x][y] = F
-	return nil
+	return board
 }
