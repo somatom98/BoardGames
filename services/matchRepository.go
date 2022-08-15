@@ -37,10 +37,16 @@ func InsertMatch(match m.IMatch) error {
 		return err
 	}
 	_, err = matchesCollection.InsertOne(context.TODO(), match)
+	return err
+}
+
+func UpdateMatch(match m.IMatch) error {
+	matchesCollection, err := getCollection("games", "matches")
 	if err != nil {
 		return err
 	}
-	return nil
+	_, err = matchesCollection.UpdateOne(context.TODO(), bson.M{"_id": match.GetId()}, match)
+	return err
 }
 
 func FindGame(id primitive.ObjectID) (m.Game, error) {

@@ -16,11 +16,16 @@ type Coordinate struct {
 	Y int
 }
 
+var UP = Coordinate{X: 0, Y: 1}
+var DOWN = Coordinate{X: 0, Y: -1}
+var RIGHT = Coordinate{X: 1, Y: 0}
+var LEFT = Coordinate{X: -1, Y: 0}
+
 type IMatch interface {
 	GetId() primitive.ObjectID
 	GetGameId() primitive.ObjectID
 	GetBoard() Board
-	MakeMove(IMove) (Board, error)
+	MakeMove(IMove) error
 }
 
 type IMove interface {

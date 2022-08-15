@@ -44,8 +44,20 @@ func GetGames() (m.GetGamesResponse, error) {
 	}, nil
 }
 
-func Move(request m.MoveRequest) m.MoveResponse {
-	return m.MoveResponse{}
+func Move(request m.MoveRequest) (m.MoveResponse, error) {
+	match, err := FindMatch(request.MatchId)
+	if err != nil {
+		return m.MoveResponse{}, err
+	}
+	if err := match.MakeMove(request.Move); err != nil {
+		return m.MoveResponse{}, err
+	}
+	if err := UpdateMatch(match); err != nil {
+		return m.MoveResponse{}, err
+	}
+	return m.MoveResponse{
+		Match: match,
+	}, err
 }
 
 func newMatch(game m.Game) m.IMatch {
